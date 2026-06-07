@@ -1,0 +1,6 @@
+apiVersion: v2
+name: demo-service
+description: Dummy Helm chart for Codespaces AKS evaluation
+type: application
+version: 0.1.0
+appVersion: "1.0.0"
