@@ -1,0 +1,11 @@
+{
+  "name": "Codespaces Evaluation",
+  "image": "mcr.microsoft.com/devcontainers/java:17",
+
+  "features": {
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {},
+    "ghcr.io/devcontainers/features/kubectl-helm-minikube:1": {}
+  },
+
+  "postCreateCommand": "java -version && mvn -version && helm version"
+}

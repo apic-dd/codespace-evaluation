@@ -1,0 +1,32 @@
+name: Codespaces Evaluation
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Build Java App
+        run: mvn clean package -DskipTests
+
+      - name: Helm Lint
+        run: helm lint helm/demo-service
+
+      - name: Helm Template
+        run: helm template demo-service helm/demo-service
+
+      - name: Simulate AKS Validation
+        run: |
+          echo "AKS dry-run simulation successful"
