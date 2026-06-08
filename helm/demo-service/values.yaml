@@ -3,8 +3,36 @@ replicaCount: 1
 image:
   repository: demo-service
   tag: latest
+  pullPolicy: IfNotPresent
 
 service:
   type: ClusterIP
   port: 80
   targetPort: 8080
+
+ingress:
+  enabled: false
+  host: demo-service.example.com
+  path: /
+  tls: false
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 256Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi
+
+probes:
+  liveness:
+    path: /actuator/health/liveness
+    initialDelaySeconds: 30
+    periodSeconds: 10
+  readiness:
+    path: /actuator/health/readiness
+    initialDelaySeconds: 15
+    periodSeconds: 5
+
+env:
+  SPRING_PROFILES_ACTIVE: production

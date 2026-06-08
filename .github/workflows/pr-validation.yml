@@ -1,0 +1,75 @@
+name: PR Validation
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  check-title:
+    name: PR Title Convention
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Validate PR title
+        env:
+          TITLE: ${{ github.event.pull_request.title }}
+        run: |
+          # Enforce conventional commit prefix: feat|fix|chore|docs|refactor|test|ci
+          echo "PR title: $TITLE"
+          if echo "$TITLE" | grep -qE '^(feat|fix|chore|docs|refactor|test|ci)(\(.+\))?: .+'; then
+            echo "Title format valid"
+          else
+            echo "ERROR: PR title must follow conventional commits format"
+            echo "Examples: feat(helm): add ingress template  |  fix: correct probe path"
+            exit 1
+          fi
+
+  java-checks:
+    name: Java Build & Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+          cache: maven
+
+      - name: Build & test
+        run: mvn clean verify
+
+      - name: Check for snapshot dependencies
+        run: |
+          if grep -q 'SNAPSHOT' pom.xml; then
+            echo "WARNING: SNAPSHOT dependencies found in pom.xml"
+          fi
+
+  helm-checks:
+    name: Helm Validate
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: azure/setup-helm@v4
+
+      - name: Lint
+        run: helm lint helm/demo-service --strict
+
+      - name: Template render check
+        run: helm template demo-service helm/demo-service > /dev/null
+
+  dockerfile-check:
+    name: Dockerfile Lint
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Lint Dockerfile
+        uses: hadolint/hadolint-action@v3.1.0
+        with:
+          dockerfile: Dockerfile
+          ignore: DL3008

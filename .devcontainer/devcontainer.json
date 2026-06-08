@@ -1,6 +1,42 @@
 {
-  "name": "Codespaces Evaluation",
+  "name": "Codespaces Evaluation — Java + Helm + AKS",
   "image": "mcr.microsoft.com/devcontainers/java:17-bookworm",
 
-  "postCreateCommand": "curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash && java -version && mvn -version && helm version"
+  "features": {
+    "ghcr.io/devcontainers/features/kubectl-helm-minikube:1": {
+      "version": "latest",
+      "helm": "3.15.0",
+      "minikube": "none"
+    },
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {}
+  },
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "vscjava.vscode-java-pack",
+        "vmware.vscode-spring-boot",
+        "redhat.vscode-yaml",
+        "ms-kubernetes-tools.vscode-kubernetes-tools",
+        "tim-koehler.helm-intellisense",
+        "sonarsource.sonarlint-vscode",
+        "github.vscode-pull-request-github"
+      ],
+      "settings": {
+        "java.compile.nullAnalysis.mode": "automatic",
+        "editor.formatOnSave": true,
+        "files.trimTrailingWhitespace": true
+      }
+    }
+  },
+
+  "postCreateCommand": "mvn dependency:resolve -q && helm version && kubectl version --client",
+
+  "forwardPorts": [8080],
+  "portsAttributes": {
+    "8080": {
+      "label": "Demo Service",
+      "onAutoForward": "notify"
+    }
+  }
 }
